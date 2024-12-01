@@ -1,0 +1,41 @@
+@ /gui root:gui {
+  #%praxis.version 5.0.0-beta-1
+  @ ./button1 gui:button {
+    .label "Stab 1"
+    .binding /audio/fx1.play
+    .layout "cell 0 0, width 120, height 100"
+  }
+  @ ./button2 gui:button {
+    .label "Stab 2"
+    .binding /audio/fx2.play
+    .layout "cell 1 0, width 120, height 100"
+  }
+  @ ./button3 gui:button {
+    .label "Drone 1"
+    .binding /audio/fx3.play
+    .layout "cell 2 0, width 120, height 100"
+  }
+  @ ./button4 gui:button {
+    .label "Drone 2"
+    .binding /audio/fx4.play
+    .layout "cell 3 0, width 120, height 100"
+  }
+  @ ./h-slider3 gui:h-slider {
+    .label Distortion
+    .binding /audio/overdrive.drive
+    .layout "cell 0 4 4 1"
+  }
+  @ ./panel1 gui:panel {
+    .label "Filter (Freq / Resonance)"
+    .layout "cell 0 3 4 1"
+    @ ./xy-pad1 gui:xy-pad {
+      .binding-x /audio/filter.frequency
+      .binding-y /audio/filter.resonance
+      .layout "cell 0 1,push "
+    }
+    @ ./combobox1 gui:combobox {
+      .binding /audio/filter.type
+      .layout "cell 0 0,width pref!,alignx right"
+    }
+  }
+}

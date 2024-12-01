@@ -1,0 +1,106 @@
+@ /video root:video {
+  #%praxis.version 5.0.0-beta-2
+  .renderer OpenGL
+  .width 1920
+  .height 1080
+  @ ./output-1 video:output {
+    #%graph.x 856
+    #%graph.y 162
+    .always-on-top true
+  }
+  @ ./custom-1 video:custom {
+    #%graph.x 176
+    #%graph.y 214
+    .code "
+
+    @P(1) @Transient
+    float\[\] fft;
+
+    @Override
+    public void setup() \{
+    \}
+
+    @Override
+    public void draw() \{
+
+        stroke(128);
+        if (fft.length > 0) \{
+            for (int i = 0; i < width; i++) \{
+                int idx = i * fft.length / width;
+                float f = dB(fft\[idx\]);
+//                offset = height - 1 - min(offset * height / 32, height - 1);
+//                stroke(255 - ((double) i / width) * 255);
+                line(i, height, i, height - (f*8));
+            \}
+        \}
+    \}
+
+    float dB(float x) \{
+        if (x == 0) \{
+            return 0;
+        \} else \{
+            return 10 * (float) Math.log10(x);
+        \}
+    \}
+"
+  }
+  @ ./p3d-1 video:gl:p3d {
+    #%graph.x 376
+    #%graph.y 110
+    .code "
+
+    @P(1) @Transient
+    float\[\] fft;   
+    
+    @Override
+    public void draw() \{
+        colorMode(HSB);
+        
+        if (fft.length == 0) \{
+            return;
+        \}
+        lights();
+        int numCircles = 800;
+        double t = sin(millis() / 1000.0 * 0.2);
+        double c = 85;
+        noStroke();
+        translate(width/2, height/2);
+        rotateX(sin(millis() * 0.0003));
+        rotateY(sin(millis() * 0.0004));
+        rotateZ(sin(millis() * 0.0005));
+        scale(abs(sin(millis() * 0.0001)) + 0.8);
+        for (int i = 0; i < numCircles; i++) \{
+            fill( (i * abs(t) % 255), 255, 230);
+            pushMatrix();
+            rotate(radians((t + 37) * i));
+            translate(sqrt(c*i), sqrt(c*i), dB(fft\[((i/10)%fft.length)\]));
+            rect(-width/4,0,width/2,0.25);
+            sphere(4);
+            popMatrix();
+        \}
+    \}
+    
+    float dB(float x) \{
+        if (x == 0) \{
+            return 0;
+        \} else \{
+            return 10 * (float) Math.log10(x);
+        \}
+    \}
+    
+"
+  }
+  @ ./composite-1 video:composite {
+    #%graph.x 574
+    #%graph.y 110
+    .mode Add
+    .mix 0.5
+  }
+  @ ./output-2 video:output {
+    #%graph.x 611
+    #%graph.y 384
+  }
+  ~ ./composite-1!out ./output-1!in
+  ~ ./p3d-1!out ./composite-1!in
+  ~ ./composite-1!out ./composite-1!src
+}

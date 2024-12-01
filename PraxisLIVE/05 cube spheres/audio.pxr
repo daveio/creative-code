@@ -1,0 +1,20 @@
+@ /audio root:audio {
+  #%autostart true
+  #%praxis.version 5.0.0-beta-2
+  @ ./send-1 core:routing:send {
+    #%graph.x 487
+    #%graph.y 248
+    .address /video/property-1.value
+  }
+  @ ./input-1 audio:input {
+    #%graph.x 129
+    #%graph.y 200
+    .channels 2
+  }
+  @ ./level-1 audio:analysis:level {
+    #%graph.x 297
+    #%graph.y 200
+  }
+  ~ ./input-1!out-1 ./level-1!in
+  ~ ./level-1!level ./send-1!in
+}

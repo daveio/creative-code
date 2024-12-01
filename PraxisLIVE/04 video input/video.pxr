@@ -1,0 +1,65 @@
+@ /video root:video {
+  #%autostart true
+  #%graph.comment Video Capture\n\nSimple video capture example, with animated\nnegative bars drawn on top of webcam image.\n\nRequires webcam (obviously!)
+  #%praxis.version 5.0.0-beta-1
+  .renderer OpenGL
+  .width 800
+  .height 600
+  @ ./output video:output {
+    #%graph.x 722
+    #%graph.y 329
+    .title "Video Capture"
+    .always-on-top true
+  }
+  @ ./capture video:capture {
+    #%graph.x 230
+    #%graph.y 302
+    #%graph.comment A video:capture component.\nMake sure device is set!
+    .source-width 640
+    .source-height 480
+  }
+  @ ./start-trigger core:start-trigger {
+    #%graph.x 24
+    #%graph.y 210
+    #%graph.comment A core:start-trigger is required to trigger\nthe camera to start when the pipeline starts.
+    #%graph.colors Red
+  }
+  @ ./bars video:custom {
+    #%graph.x 230
+    #%graph.y 724
+    #%graph.comment A custom video code component.\n\nUse right-click -> Edit code to see\nor modify the component.
+    .code "
+
+    @P(1) @ReadOnly Property bar1X;
+    @P(2) @ReadOnly Property bar1W;
+    @P(3) @ReadOnly Property bar2X;
+    @P(4) @ReadOnly Property bar2W;
+
+    @Override
+    public void draw() \{
+        
+        if (!bar1X.isAnimating()) \{
+            bar1X.to(random(-50, width + 50)).in(4);
+            bar1W.to(random(20, 200)).in(4);
+            bar2X.to(random(-50, width + 50)).in(4);
+            bar2W.to(random(20, 200)).in(4);
+        \}
+
+        blendMode(DIFFERENCE);
+        noStroke();
+        rect(d(bar1X), 0, d(bar1W), height);
+        rect(d(bar2X), 0, d(bar2W), height);
+
+    \}
+"
+  }
+  @ ./composite video:composite {
+    #%graph.x 492
+    #%graph.y 302
+    .mode Difference
+  }
+  ~ ./start-trigger!out ./capture!play
+  ~ ./capture!out ./composite!in
+  ~ ./bars!out ./composite!src
+  ~ ./composite!out ./output!in
+}
